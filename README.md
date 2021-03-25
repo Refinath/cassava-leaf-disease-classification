@@ -2,11 +2,11 @@
 
 [Github discussion forum😀](https://github.com/p-s-vishnu/cassava-leaf-disease-classification/discussions)
 
-<build-status>
+< build-status >
 
-<Problem statement>
+< Problem statement >
 
-<leaf-diseases-GIF>
+< leaf-diseases-GIF>
 
 
 
@@ -15,6 +15,8 @@
 ```python
 pip install cassava
 ```
+
+
 
 
 
@@ -37,11 +39,11 @@ model.predict(images: list)
 >>  ...]
 ```
 
-
-
 Try Jupyter notebook in Google Colab: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]( )
 
 Try Jupyter notebook in Kaggle: [![Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)]()
+
+
 
 
 
@@ -63,11 +65,15 @@ Try Jupyter notebook in Kaggle: [![Kaggle](https://kaggle.com/static/images/open
 
 
 
+## Inference 
+
+< Inference script GIF>
+
 
 
 ## Web app
 
-<Web app GIF>
+< Web app GIF>
 
 [Heroku Link]()
 
@@ -77,9 +83,13 @@ Try Jupyter notebook in Kaggle: [![Kaggle](https://kaggle.com/static/images/open
 
 
 
+
+
 ## Blog
 
 [Medium link]()
+
+
 
 
 
