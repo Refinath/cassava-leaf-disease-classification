@@ -3,6 +3,7 @@ import time
 import numpy
 import torch
 
+
 def valid_fn(valid_loader, model, criterion, device):
     batch_time = AverageMeter()
     data_time = AverageMeter()
@@ -24,21 +25,25 @@ def valid_fn(valid_loader, model, criterion, device):
         loss = criterion(y_preds, labels)
         losses.update(loss.item(), batch_size)
         # record accuracy
-        preds.append(y_preds.softmax(1).to('cpu').numpy())
+        preds.append(y_preds.softmax(1).to("cpu").numpy())
         if config.gradient_accumulation_steps > 1:
             loss = loss / config.gradient_accumulation_steps
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
-        if step % config.print_freq == 0 or step == (len(valid_loader)-1):
-            print('EVAL: [{0}/{1}] '
-                  'Data {data_time.val:.3f} ({data_time.avg:.3f}) '
-                  'Elapsed {remain:s} '
-                  'Loss: {loss.val:.4f}({loss.avg:.4f}) '
-                  .format(
-                   step, len(valid_loader), batch_time=batch_time,
-                   data_time=data_time, loss=losses,
-                   remain=timeSince(start, float(step+1)/len(valid_loader)),
-                   ))
+        if step % config.print_freq == 0 or step == (len(valid_loader) - 1):
+            print(
+                "EVAL: [{0}/{1}] "
+                "Data {data_time.val:.3f} ({data_time.avg:.3f}) "
+                "Elapsed {remain:s} "
+                "Loss: {loss.val:.4f}({loss.avg:.4f}) ".format(
+                    step,
+                    len(valid_loader),
+                    batch_time=batch_time,
+                    data_time=data_time,
+                    loss=losses,
+                    remain=timeSince(start, float(step + 1) / len(valid_loader)),
+                )
+            )
     predictions = np.concatenate(preds)
     return losses.avg, predictions

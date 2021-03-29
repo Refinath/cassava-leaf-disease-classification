@@ -2,6 +2,7 @@ import torch.nn as nn
 import config
 import timm
 
+
 class CustomEfficientNet(nn.Module):
     def __init__(self, model_name=config.model_name, pretrained=False):
         super().__init__()

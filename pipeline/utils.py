@@ -7,12 +7,14 @@ import numpy as np
 
 OUTPUT_DIR = "/"
 
-def get_score(y_true,y_pred):
-    return metrics.accuracy_score(y_true,y_pred)
+
+def get_score(y_true, y_pred):
+    return metrics.accuracy_score(y_true, y_pred)
 
 
-def init_logger(log_file=OUTPUT_DIR+'train.log'):
-    from logging import getLogger, INFO, FileHandler,  Formatter,  StreamHandler
+def init_logger(log_file=OUTPUT_DIR + "train.log"):
+    from logging import getLogger, INFO, FileHandler, Formatter, StreamHandler
+
     logger = getLogger(__name__)
     logger.setLevel(INFO)
     handler1 = StreamHandler()
@@ -26,23 +28,26 @@ def init_logger(log_file=OUTPUT_DIR+'train.log'):
 
 def seed_torch(seed=42):
     random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
 
+
 def timer(name):
     t0 = time.time()
-    LOGGER.info(f'[{name}] start')
+    LOGGER.info(f"[{name}] start")
     yield
-    LOGGER.info(f'[{name}] done in {time.time() - t0:.0f} s.')
+    LOGGER.info(f"[{name}] done in {time.time() - t0:.0f} s.")
+
 
 # ====================================================
 # Helper functions
 # ====================================================
 class AverageMeter(object):
     """Computes and stores the average and current value"""
+
     def __init__(self):
         self.reset()
 
@@ -62,7 +67,7 @@ class AverageMeter(object):
 def asMinutes(s):
     m = math.floor(s / 60)
     s -= m * 60
-    return '%dm %ds' % (m, s)
+    return "%dm %ds" % (m, s)
 
 
 def timeSince(since, percent):
@@ -70,7 +75,4 @@ def timeSince(since, percent):
     s = now - since
     es = s / (percent)
     rs = es - s
-    return '%s (remain %s)' % (asMinutes(s), asMinutes(rs))
-
-
-
+    return "%s (remain %s)" % (asMinutes(s), asMinutes(rs))
