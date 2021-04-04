@@ -31,17 +31,6 @@ repos:
     - id: trailing-whitespace
     - id: flake8
     - id: requirements-txt-fixer
--   repo: local
-    hooks:
-    -   id: pylint
-        args:
-        - --max-line-length=119
-        - --ignore-imports=yes
-        - -d duplicate-code
-        name: pylint
-        entry: pylint
-        language: system
-        types: [python]
 - repo: https://github.com/asottile/pyupgrade
   rev: v2.7.3
   hooks:
