@@ -1,3 +1,6 @@
-sklearn
-pandas
+albumentations==0.5.2
+apex==0.9.10dev
+pandas==1.2.3
+scikit_learn==0.24.1
+timm==0.4.5
 torch
