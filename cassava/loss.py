@@ -1,7 +1,6 @@
-import numpy as np
-
-# Loss Functions
-# Bi-Tempered Loss Function
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
 
 def log_t(u, t):
@@ -57,9 +56,9 @@ def compute_normalization_binary_search(activations, t, num_iters):
     mu, _ = torch.max(activations, -1, keepdim=True)
     normalized_activations = activations - mu
 
-    effective_dim = torch.sum((normalized_activations > -1.0 / (1.0 - t)).to(torch.int32), dim=-1, keepdim=True).to(
-        activations.dtype
-    )
+    effective_dim = torch.sum(
+        (normalized_activations > -1.0 / (1.0 - t)).to(torch.int32), dim=-1, keepdim=True
+    ).to(activations.dtype)
 
     shape_partition = activations.shape[:-1] + (1,)
     lower = torch.zeros(shape_partition, dtype=activations.dtype, device=activations.device)
@@ -67,7 +66,9 @@ def compute_normalization_binary_search(activations, t, num_iters):
 
     for _ in range(num_iters):
         logt_partition = (upper + lower) / 2.0
-        sum_probs = torch.sum(exp_t(normalized_activations - logt_partition, t), dim=-1, keepdim=True)
+        sum_probs = torch.sum(
+            exp_t(normalized_activations - logt_partition, t), dim=-1, keepdim=True
+        )
         update = (sum_probs < 1.0).to(activations.dtype)
         lower = torch.reshape(lower * update + (1.0 - update) * logt_partition, shape_partition)
         upper = torch.reshape(upper * (1.0 - update) + update * logt_partition, shape_partition)
@@ -106,7 +107,7 @@ class ComputeNormalization(torch.autograd.Function):
 
 
 def compute_normalization(activations, t, num_iters=5):
-    """Returns the normalization value for each example. 
+    """Returns the normalization value for each example.
     Backward pass is implemented.
     Args:
       activations: A multi-dimensional tensor with last dimension `num_classes`.
@@ -147,7 +148,9 @@ def tempered_softmax(activations, t, num_iters=5):
     return exp_t(activations - normalization_constants, t)
 
 
-def bi_tempered_binary_logistic_loss(activations, labels, t1, t2, label_smoothing=0.0, num_iters=5, reduction="mean"):
+def bi_tempered_binary_logistic_loss(
+    activations, labels, t1, t2, label_smoothing=0.0, num_iters=5, reduction="mean"
+):
 
     """Bi-Tempered binary logistic loss.
     Args:
@@ -161,7 +164,9 @@ def bi_tempered_binary_logistic_loss(activations, labels, t1, t2, label_smoothin
       A loss tensor.
     """
     internal_activations = torch.stack([activations, torch.zeros_like(activations)], dim=-1)
-    internal_labels = torch.stack([labels.to(activations.dtype), 1.0 - labels.to(activations.dtype)], dim=-1)
+    internal_labels = torch.stack(
+        [labels.to(activations.dtype), 1.0 - labels.to(activations.dtype)], dim=-1
+    )
     return bi_tempered_logistic_loss(
         internal_activations,
         internal_labels,
@@ -173,12 +178,14 @@ def bi_tempered_binary_logistic_loss(activations, labels, t1, t2, label_smoothin
     )
 
 
-def bi_tempered_logistic_loss(activations, labels, t1, t2, label_smoothing=0.0, num_iters=5, reduction="mean"):
+def bi_tempered_logistic_loss(
+    activations, labels, t1, t2, label_smoothing=0.0, num_iters=5, reduction="mean"
+):
 
     """Bi-Tempered Logistic Loss.
     Args:
       activations: A multi-dimensional tensor with last dimension `num_classes`.
-      labels: A tensor with shape and dtype as activations (onehot), 
+      labels: A tensor with shape and dtype as activations (onehot),
         or a long tensor of one dimension less than activations (pytorch standard)
       t1: Temperature 1 (< 1.0 for boundedness).
       t2: Temperature 2 (> 1.0 for tail heaviness, < 1.0 for finite support).
@@ -201,9 +208,9 @@ def bi_tempered_logistic_loss(activations, labels, t1, t2, label_smoothing=0.0, 
 
     if label_smoothing > 0:
         num_classes = labels_onehot.shape[-1]
-        labels_onehot = (1 - label_smoothing * num_classes / (num_classes - 1)) * labels_onehot + label_smoothing / (
-            num_classes - 1
-        )
+        labels_onehot = (
+            1 - label_smoothing * num_classes / (num_classes - 1)
+        ) * labels_onehot + label_smoothing / (num_classes - 1)
 
     probabilities = tempered_softmax(activations, t2, num_iters)
 
@@ -225,14 +232,19 @@ def bi_tempered_logistic_loss(activations, labels, t1, t2, label_smoothing=0.0, 
 
 class BiTemperedLogisticLoss(nn.Module):
     def __init__(self, t1, t2, smoothing=0.0):
-        super(BiTemperedLogisticLoss, self).__init__()
+        super().__init__()
         self.t1 = t1
         self.t2 = t2
         self.smoothing = smoothing
 
     def forward(self, logit_label, truth_label):
         loss_label = bi_tempered_logistic_loss(
-            logit_label, truth_label, t1=self.t1, t2=self.t2, label_smoothing=self.smoothing, reduction="none"
+            logit_label,
+            truth_label,
+            t1=self.t1,
+            t2=self.t2,
+            label_smoothing=self.smoothing,
+            reduction="none",
         )
 
         loss_label = loss_label.mean()
@@ -244,7 +256,7 @@ class BiTemperedLogisticLoss(nn.Module):
 
 class FocalCosineLoss(nn.Module):
     def __init__(self, alpha=1, gamma=2, xent=0.1):
-        super(FocalCosineLoss, self).__init__()
+        super().__init__()
         self.alpha = alpha
         self.gamma = gamma
 

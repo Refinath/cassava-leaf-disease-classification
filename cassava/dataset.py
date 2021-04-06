@@ -1,9 +1,15 @@
-from torch.utils.data import DataLoader, Dataset
+""" Image dataset definition
+"""
+
+import config
 import cv2
 import torch
+from torch.utils.data import Dataset
 
 
 class TrainDataset(Dataset):
+    """Train dataset class"""
+
     def __init__(self, df, transform=None):
         self.df = df
         self.file_names = df["image_id"].values
@@ -15,7 +21,7 @@ class TrainDataset(Dataset):
 
     def __getitem__(self, idx):
         file_name = self.file_names[idx]
-        file_path = f"{TRAIN_PATH}/{file_name}"
+        file_path = f"{config.TRAIN_PATH}/{file_name}"
         image = cv2.imread(file_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         if self.transform:
@@ -26,6 +32,8 @@ class TrainDataset(Dataset):
 
 
 class TestDataset(Dataset):
+    """Test dataset class"""
+
     def __init__(self, df, transform=None):
         self.df = df
         self.file_names = df["image_id"].values
@@ -36,7 +44,7 @@ class TestDataset(Dataset):
 
     def __getitem__(self, idx):
         file_name = self.file_names[idx]
-        file_path = f"{TEST_PATH}/{file_name}"
+        file_path = f"{config.TEST_PATH}/{file_name}"
         image = cv2.imread(file_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         if self.transform:

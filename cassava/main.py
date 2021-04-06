@@ -1,31 +1,43 @@
+import time
+
 import config
+import loss
+import numpy as np
+import pandas as pd
+import torch
+import torch.nn as nn
 import utils
-from dataset import TrainDataset, TestDataset
 from augment import get_transforms
+from dataset import TestDataset, TrainDataset
 from model import CustomEfficientNet
+from sklearn import model_selection
+from torch.optim import SGD, Adam
+from torch.optim.lr_scheduler import (
+    CosineAnnealingLR,
+    CosineAnnealingWarmRestarts,
+    ReduceLROnPlateau,
+)
+from torch.utils.data import DataLoader
 from train import train_fn
 from valid import valid_fn
 
-# Regular Imports
-import pandas as pd
-from sklearn import model_selection
-import time
-
-# Torch Imports
-from torch.utils.data import DataLoader
-from torch.optim import Adam, SGD
-
+# # Initializations
 OUTPUT_DIR = "/"
-train = pd.read_csv("pipeline/data/train.csv")
+train = pd.read_csv("data/train.csv")
 
 LOGGER = utils.init_logger()
-utils.seed_torch(config.seed)
+utils.seed_torch(config.SEED)
 
 # Creating CV Strategy
-Fold = model_selection.StratifiedKFold(n_splits=config.n_fold, shuffle=True, random_state=config.seed)
-for n, (train_index, val_index) in enumerate(Fold.split(folds, folds[config.target_col])):
+folds = train.copy()
+fold_strategy = model_selection.StratifiedKFold(
+    n_splits=config.N_FOLD, shuffle=True, random_state=config.SEED
+)
+for n, (train_index, val_index) in enumerate(fold_strategy.split(folds, folds[config.TARGET_COL])):
     folds.loc[val_index, "fold"] = int(n)
 folds["fold"] = folds["fold"].astype(int)
+
+device = torch.device("gpu" if torch.cuda.is_available() else "cpu")
 
 
 def train_loop(folds, fold):
@@ -46,17 +58,17 @@ def train_loop(folds, fold):
 
     train_loader = DataLoader(
         train_dataset,
-        batch_size=config.batch_size,
+        batch_size=config.BATCH_SIZE,
         shuffle=True,
-        num_workers=config.num_workers,
+        num_workers=config.NUM_WORKERS,
         pin_memory=True,
         drop_last=True,
     )
     valid_loader = DataLoader(
         valid_dataset,
-        batch_size=config.batch_size,
+        batch_size=config.BATCH_SIZE,
         shuffle=False,
-        num_workers=config.num_workers,
+        num_workers=config.NUM_WORKERS,
         pin_memory=True,
         drop_last=False,
     )
@@ -65,48 +77,53 @@ def train_loop(folds, fold):
     # scheduler
     # ====================================================
     def get_scheduler(optimizer):
-        if config.scheduler == "ReduceLROnPlateau":
+        if config.SCHEDULER == "ReduceLROnPlateau":
             scheduler = ReduceLROnPlateau(
-                optimizer, mode="min", factor=config.factor, patience=config.patience, verbose=True, eps=config.eps
+                optimizer,
+                mode="min",
+                factor=config.factor,
+                patience=config.patience,
+                verbose=True,
+                eps=config.eps,
             )
-        elif config.scheduler == "CosineAnnealingLR":
-            scheduler = CosineAnnealingLR(optimizer, T_max=config.T_max, eta_min=config.min_lr, last_epoch=-1)
-        elif config.scheduler == "CosineAnnealingWarmRestarts":
+        elif config.SCHEDULER == "CosineAnnealingLR":
+            scheduler = CosineAnnealingLR(
+                optimizer, T_max=config.T_max, eta_min=config.MIN_LR, last_epoch=-1
+            )
+        elif config.SCHEDULER == "CosineAnnealingWarmRestarts":
             scheduler = CosineAnnealingWarmRestarts(
-                optimizer, T_0=config.T_0, T_mult=1, eta_min=config.min_lr, last_epoch=-1
+                optimizer, T_0=config.T_0, T_mult=1, eta_min=config.MIN_LR, last_epoch=-1
             )
         return scheduler
 
     # ====================================================
     # model & optimizer
     # ====================================================
-    model = CustomEfficientNet(config.model_name, pretrained=True)
+    model = CustomEfficientNet(config.MODEL_NAME, pretrained=True)
     model.to(device)
 
-    optimizer = Adam(model.parameters(), lr=config.lr, weight_decay=config.weight_decay, amsgrad=False)
+    optimizer = Adam(
+        model.parameters(), lr=config.LR, weight_decay=config.WEIGHT_DECAY, amsgrad=False
+    )
     scheduler = get_scheduler(optimizer)
 
     # ====================================================
     # apex
     # ====================================================
-    if config.apex:
+    if config.APEX:
+        from apex import amp
+
         model, optimizer = amp.initialize(model, optimizer, opt_level="O1", verbosity=0)
 
     def get_criterion():
-        if config.criterion == "CrossEntropyLoss":
+        if config.CRITERION == "CrossEntropyLoss":
             criterion = nn.CrossEntropyLoss()
-        elif config.criterion == "LabelSmoothing":
-            criterion = LabelSmoothingLoss(classes=config.target_size, smoothing=config.smoothing)
-        elif config.criterion == "FocalLoss":
-            criterion = FocalLoss().to(device)
-        elif config.criterion == "FocalCosineLoss":
-            criterion = FocalCosineLoss()
-        elif config.criterion == "SymmetricCrossEntropyLoss":
-            criterion = SymmetricCrossEntropy().to(device)
-        elif config.criterion == "BiTemperedLoss":
-            criterion = BiTemperedLogisticLoss(t1=config.t1, t2=config.t2, smoothing=config.smoothing)
-        elif config.criterion == "TaylorCrossEntropyLoss":
-            criterion = TaylorCrossEntropyLoss(smoothing=config.smoothing)
+        elif config.CRITERION == "FocalCosineLoss":
+            criterion = loss.FocalCosineLoss()
+        elif config.CRITERION == "BiTemperedLoss":
+            criterion = loss.BiTemperedLogisticLoss(
+                t1=config.t1, t2=config.t2, smoothing=config.smoothing
+            )
         return criterion
 
     # ====================================================
@@ -116,9 +133,8 @@ def train_loop(folds, fold):
     LOGGER.info(f"Criterion: {criterion}")
 
     best_score = 0.0
-    best_loss = np.inf
 
-    for epoch in range(config.epochs):
+    for epoch in range(config.EPOCHS):
 
         start_time = time.time()
 
@@ -127,7 +143,7 @@ def train_loop(folds, fold):
 
         # eval
         avg_val_loss, preds = valid_fn(valid_loader, model, criterion, device)
-        valid_labels = valid_folds[config.target_col].values
+        valid_labels = valid_folds[config.TARGET_COL].values
 
         if isinstance(scheduler, ReduceLROnPlateau):
             scheduler.step(avg_val_loss)
@@ -150,10 +166,11 @@ def train_loop(folds, fold):
             best_score = score
             LOGGER.info(f"Epoch {epoch+1} - Save Best Score: {best_score:.4f} Model")
             torch.save(
-                {"model": model.state_dict(), "preds": preds}, OUTPUT_DIR + f"{config.model_name}_fold{fold}_best.pth"
+                {"model": model.state_dict(), "preds": preds},
+                OUTPUT_DIR + f"{config.MODEL_NAME}_fold{fold}_best.pth",
             )
 
-    check_point = torch.load(OUTPUT_DIR + f"{config.model_name}_fold{fold}_best.pth")
+    check_point = torch.load(OUTPUT_DIR + f"{config.MODEL_NAME}_fold{fold}_best.pth")
     valid_folds[[str(c) for c in range(5)]] = check_point["preds"]
     valid_folds["preds"] = check_point["preds"].argmax(1)
 
@@ -168,8 +185,8 @@ def main():
 
     def get_result(result_df):
         preds = result_df["preds"].values
-        labels = result_df[config.target_col].values
-        score = get_score(labels, preds)
+        labels = result_df[config.TARGET_COL].values
+        score = utils.get_score(labels, preds)
         LOGGER.info(f"Score: {score:<.5f}")
 
     if config.train:
@@ -182,7 +199,7 @@ def main():
                 LOGGER.info(f"========== fold: {fold} result ==========")
                 get_result(_oof_df)
         # CV result
-        LOGGER.info(f"========== CV ==========")
+        LOGGER.info("========== CV ==========")
         get_result(oof_df)
         # save result
         oof_df.to_csv(OUTPUT_DIR + "oof_df.csv", index=False)

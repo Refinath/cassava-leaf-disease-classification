@@ -1,33 +1,25 @@
-import albumentations
+"""This module includes the augmentation pipeline"""
+
+import config
 from albumentations import (
     Compose,
-    OneOf,
-    Normalize,
-    Resize,
-    RandomResizedCrop,
-    RandomCrop,
     HorizontalFlip,
-    VerticalFlip,
-    RandomBrightness,
-    RandomContrast,
-    RandomBrightnessContrast,
-    Rotate,
+    Normalize,
+    RandomResizedCrop,
+    Resize,
     ShiftScaleRotate,
-    Cutout,
-    IAAAdditiveGaussianNoise,
     Transpose,
+    VerticalFlip,
 )
 from albumentations.pytorch import ToTensorV2
-from albumentations import ImageOnlyTransform
 
 
 def get_transforms(*, data):
-
+    """Returns augmentation specific to train/valid data"""
     if data == "train":
         return Compose(
             [
-                # Resize(CFG.size, CFG.size),
-                RandomResizedCrop(CFG.size, CFG.size),
+                RandomResizedCrop(config.SIZE, config.SIZE),
                 Transpose(p=0.5),
                 HorizontalFlip(p=0.5),
                 VerticalFlip(p=0.5),
@@ -36,12 +28,12 @@ def get_transforms(*, data):
                 ToTensorV2(),
             ]
         )
-
-    elif data == "valid":
+    if data == "valid":
         return Compose(
             [
-                Resize(CFG.size, CFG.size),
+                Resize(config.SIZE, config.SIZE),
                 Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
                 ToTensorV2(),
             ]
         )
+    return Exception("Unimplemented data transform!")
