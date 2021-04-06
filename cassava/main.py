@@ -33,7 +33,7 @@ folds = train.copy()
 fold_strategy = model_selection.StratifiedKFold(
     n_splits=config.N_FOLD, shuffle=True, random_state=config.SEED
 )
-for n, (train_index, val_index) in enumerate(fold_strategy.split(train, train[config.TARGET_COL])):
+for n, (train_index, val_index) in enumerate(fold_strategy.split(folds, folds[config.TARGET_COL])):
     folds.loc[val_index, "fold"] = int(n)
 folds["fold"] = folds["fold"].astype(int)
 
