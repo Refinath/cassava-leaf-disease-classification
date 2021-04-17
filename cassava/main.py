@@ -9,7 +9,6 @@ import torch.nn as nn
 import utils
 from augment import get_transforms
 from dataset import TestDataset, TrainDataset
-from model import CustomEfficientNet
 from sklearn import model_selection
 from torch.optim import SGD, Adam
 from torch.optim.lr_scheduler import (
@@ -20,6 +19,8 @@ from torch.optim.lr_scheduler import (
 from torch.utils.data import DataLoader
 from train import train_fn
 from valid import valid_fn
+
+from model import CassavaClassifier
 
 # # Initializations
 OUTPUT_DIR = "/"
@@ -99,7 +100,7 @@ def train_loop(folds, fold):
     # ====================================================
     # model & optimizer
     # ====================================================
-    model = CustomEfficientNet(config.MODEL_NAME, pretrained=True)
+    model = CassavaClassifier(config.MODEL_NAME, pretrained=True)
     model.to(device)
 
     optimizer = Adam(
