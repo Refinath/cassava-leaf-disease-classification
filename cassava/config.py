@@ -26,7 +26,14 @@ WEIGHT_DECAY = 1e-6
 GRADIENT_ACCUM_STEPS = 1
 MAX_GRAD_NORM = 1000
 SEED = 42
-TARGET_SIZE = 5
+TARGET_SIZE = 5  # Num of Classes
+LABEL_MAP = {
+    0: "Cassava Bacterial Blight (CBB)",
+    1: "Cassava Brown Streak Disease (CBSD)",
+    2: "Cassava Green Mottle (CGM)",
+    3: "Cassava Mosaic Disease (CMD)",
+    4: "Healthy",
+}
 TARGET_COL = "label"
 N_FOLD = 5
 TRN_FOLD = [0]  # Change Values according to the fold which you are training.
