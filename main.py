@@ -1,14 +1,10 @@
 import time
 
-import config
-import loss
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
 import utils
-from augment import get_transforms
-from dataset import TestDataset, TrainDataset
 from sklearn import model_selection
 from torch.optim import SGD, Adam
 from torch.optim.lr_scheduler import (
@@ -17,10 +13,13 @@ from torch.optim.lr_scheduler import (
     ReduceLROnPlateau,
 )
 from torch.utils.data import DataLoader
-from train import train_fn
-from valid import valid_fn
 
-from model import CassavaClassifier
+from cassava import config, loss
+from cassava.augment import get_transforms
+from cassava.dataset import TestDataset, TrainDataset
+from cassava.model import CassavaClassifier
+from cassava.train import train_fn
+from cassava.valid import valid_fn
 
 # # Initializations
 OUTPUT_DIR = "/"
