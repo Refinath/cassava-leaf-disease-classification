@@ -1,12 +1,12 @@
 from typing import Dict, Tuple
 
-import augment
-import config
 import numpy as np
 import timm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+from cassava import augment, config
 
 
 class BaseClassifier(nn.Module):

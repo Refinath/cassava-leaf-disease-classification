@@ -1,6 +1,5 @@
 """This module includes the augmentation pipeline"""
 
-import config
 from albumentations import (
     Compose,
     HorizontalFlip,
@@ -12,6 +11,8 @@ from albumentations import (
     VerticalFlip,
 )
 from albumentations.pytorch import ToTensorV2
+
+from cassava import config
 
 
 def get_transforms(*, data):

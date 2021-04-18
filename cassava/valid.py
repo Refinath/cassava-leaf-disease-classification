@@ -1,9 +1,10 @@
 import time
 
-import config
 import numpy as np
 import torch
 from utils import AverageMeter, time_since
+
+from cassava import config
 
 
 def valid_fn(valid_loader, model, criterion, device):

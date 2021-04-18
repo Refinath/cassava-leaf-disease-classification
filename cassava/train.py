@@ -1,9 +1,10 @@
 import time
 
-import config
 import numpy as np
 import torch
 from utils import AverageMeter, cutmix, time_since
+
+from cassava import config
 
 
 def train_fn(train_loader, model, criterion, optimizer, epoch, scheduler, device):

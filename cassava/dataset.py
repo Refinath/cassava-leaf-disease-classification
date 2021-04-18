@@ -1,10 +1,11 @@
 """ Image dataset definition
 """
 
-import config
 import cv2
 import torch
 from torch.utils.data import Dataset
+
+from cassava import config
 
 
 class TrainDataset(Dataset):

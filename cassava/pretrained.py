@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from PIL import Image
 
-from model import CassavaClassifier
+from cassava.model import CassavaClassifier
 
 model = namedtuple("model", ["url", "model"])
 models = {
@@ -16,12 +16,11 @@ models = {
 }
 
 
-def list():
+def list_models():
     """
     Print all available pretrained models
     """
-    for m in models:
-        print(m)
+    return list(models.keys())
 
 
 def get_model(name):
