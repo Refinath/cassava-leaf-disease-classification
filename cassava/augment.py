@@ -28,7 +28,7 @@ def get_transforms(*, data):
                 ToTensorV2(),
             ]
         )
-    if data == "valid":
+    if data in ["valid", "test"]:
         return Compose(
             [
                 Resize(config.SIZE, config.SIZE),
