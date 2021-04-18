@@ -19,7 +19,7 @@ def install_requires():
 
 
 setup(
-    name="cassava",
+    name="cassava_classifier",
     version="0.0.1",
     author="Prasanna Kumar, PS Vishnu",
     author_email="vpkpypi@gmail.com, psvpypi@gmail.com",
