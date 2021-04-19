@@ -14,10 +14,7 @@ The idea of this competition is to build a Classifier Model to find the leaf dis
 
 
 ## Installation
-
-```python
-pip install cassava
-```
+`pip install cassava-classifier`
 
 
 
@@ -26,19 +23,19 @@ pip install cassava
 ## Example inference
 
 ```python
-import cv2
+import PIL import Image
 from cassava.pretrained import get_model
 
-image = cv2.imread("<insert your image path here>")
+image = Image.open("<insert your image path here>")
 
 # Use cassava.list_models() to see list of all available pretrained models with metrics
-model = cassava.get_model("")
-model.predict(image: np.array)
->> [{"image_id":str, "class": int,"probability": float}]
+model = get_model(name:str)
+model.predict_as_json(image: np.array)
+>> [{"class_name":str, "confidence": float}]
 
-model.predict(images: list)
->> [{"image_id":str, "class": int,"probability": float},
->>  {"image_id":str, "class": int,"probability": float},
+model.predict_as_json(images: list)
+>> [{"class_name":str, "confidence": float},
+>>  {"class_name":str, "confidence": float},
 >>  ...]
 ```
 # Our Pipeline
@@ -52,7 +49,7 @@ model.predict(images: list)
     8.Early Stopping     - No
     9.Mixed Precision    - Yes
 
-Try Jupyter notebook in Google Colab: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]( )
+Try Jupyter notebook in Google Colab: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1gPLY6nqF6P4WdvIRIAH_aYQn-iWkzvqs?usp=sharing)
 
 Try Jupyter notebook in Kaggle: [![Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)]()
 
