@@ -1,11 +1,13 @@
 # Cassava leaf disease classification
+[![PyPI version shields.io](https://img.shields.io/badge/pypi-0.0.2-blue)](https://pypi.org/project/cassava-classifier/)
+![CI](https://github.com/albumentations-team/albumentations/workflows/CI/badge.svg)
 
 The idea of this competition is to build a Classifier Model to find the leaf disease type and it has almost 5 class and a im-balanced Class
 
 - [Link to the competition](https://www.kaggle.com/c/cassava-leaf-disease-classification])
 - [Github discussion forum😀](https://github.com/p-s-vishnu/cassava-leaf-disease-classification/discussions)
 
-< build-status >
+
 
 < Problem statement >
 
@@ -33,10 +35,6 @@ model = get_model(name:str)
 model.predict_as_json(image: np.array)
 >> [{"class_name":str, "confidence": float}]
 
-model.predict_as_json(images: list)
->> [{"class_name":str, "confidence": float},
->>  {"class_name":str, "confidence": float},
->>  ...]
 ```
 # Our Pipeline
     1.Model Architecture - Efficeientnet-B4 , Noisy Weights
@@ -73,7 +71,8 @@ Try Jupyter notebook in Kaggle: [![Kaggle](https://kaggle.com/static/images/open
 
 ## Inference
 
-< Inference script GIF>
+![inference](static/cassava.gif)
+
 
 
 
