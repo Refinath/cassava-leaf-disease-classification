@@ -1,8 +1,7 @@
 # Cassava leaf disease classification
 [![PyPI version shields.io](https://img.shields.io/badge/pypi-0.0.2-blue)](https://pypi.org/project/cassava-classifier/)
-![CI](https://github.com/albumentations-team/albumentations/workflows/CI/badge.svg)
-
-The idea of this competition is to build a Classifier Model to find the leaf disease type and it has almost 5 class and a im-balanced Class
+[![Downloads](https://pepy.tech/badge/cassava-classifier)](https://pepy.tech/project/cassava-classifier)
+The idea of this project is to build a Classifier Model to find the leaf disease type and it has almost 5 class and a im-balanced Class
 
 - [Link to the competition](https://www.kaggle.com/c/cassava-leaf-disease-classification])
 - [Github discussion forum😀](https://github.com/p-s-vishnu/cassava-leaf-disease-classification/discussions)
@@ -49,7 +48,7 @@ model.predict_as_json(image: np.array)
 
 Try Jupyter notebook in Google Colab: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1gPLY6nqF6P4WdvIRIAH_aYQn-iWkzvqs?usp=sharing)
 
-Try Jupyter notebook in Kaggle: [![Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)]()
+Try Jupyter notebook in Kaggle: [![Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)](https://www.kaggle.com/vpkprasanna/cassava-inference-from-pypi)
 
 ## Training
 
