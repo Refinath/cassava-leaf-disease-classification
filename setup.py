@@ -25,7 +25,7 @@ setup(
         "pandas==1.2.3",
         "scikit_learn==0.24.1",
         "timm==0.4.5",
-        "torch==1.8.1",
+        "torch==2.8.0",
     ],
     classifiers=[
         "License :: OSI Approved :: MIT License",
